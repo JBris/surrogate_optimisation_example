@@ -9,6 +9,7 @@ class DataModel(BaseModel):
         BaseModel (_type_):
             The Base model class.
     """
+
     data_dir: str
     input_dir: str
     output_dir: str
@@ -26,6 +27,7 @@ class GpModel(BaseModel):
         BaseModel (_type_):
             The Base model class.
     """
+
     num_latents: int
     num_epochs: int
     lr: float
@@ -39,6 +41,19 @@ class OptimisationModel(BaseModel):
         BaseModel (_type_):
             The Base model class.
     """
+
     n_trials: int
     n_jobs: int
     params: dict
+
+class ExperimentModel(BaseModel):
+    """
+    The experiment model.
+
+    Args:
+        BaseModel (_type_):
+            The Base model class.
+    """
+
+    experiment_prefix: str
+    tracking_uri: str

@@ -1,5 +1,6 @@
 defaults:
   - _self_
   - data: default
+  - experiment: mlflow
   - gp: default
   - optimise: tpes

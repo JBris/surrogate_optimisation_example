@@ -1,0 +1,2 @@
+experiment_prefix: surrogate_optimisation_example
+tracking_uri: http://mlflow:5000

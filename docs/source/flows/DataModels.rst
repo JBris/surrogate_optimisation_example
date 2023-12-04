@@ -8,3 +8,9 @@ Data Models
 
 .. autoclass:: flows.DataModels.GpModel     
    :members: 
+
+.. autoclass:: flows.DataModels.OptimisationModel     
+   :members: 
+
+.. autoclass:: flows.DataModels.ExperimentModel     
+   :members:    

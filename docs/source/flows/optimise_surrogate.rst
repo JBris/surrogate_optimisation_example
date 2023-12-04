@@ -14,3 +14,6 @@ Optimise Surrogate
 
 .. autodata:: flows.optimise_surrogate.fit_model
    :annotation:
+
+.. autodata:: flows.optimise_surrogate.optimise_model
+   :annotation:
