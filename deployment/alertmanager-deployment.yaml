@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose --file docker-compose-resolved.yaml --profile k8s convert --out deployment
+    kompose.version: 1.31.2 (a92241f79)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: alertmanager
+  name: alertmanager
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: alertmanager
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose --file docker-compose-resolved.yaml --profile k8s convert --out deployment
+        kompose.version: 1.31.2 (a92241f79)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/surrogate-optimisation-example: "true"
+        io.kompose.service: alertmanager
+    spec:
+      containers:
+        - args:
+            - --config.file=/etc/alertmanager/config.yaml
+            - --storage.path=/alertmanager
+          image: prom/alertmanager:v0.25.0
+          name: surrogate-optimisation-example-alertmanager
+          ports:
+            - containerPort: 9093
+              hostPort: 9093
+              protocol: TCP
+          resources: {}
+          volumeMounts:
+            - mountPath: /etc/alertmanager
+              name: alertmanager-data
+            - mountPath: /etc/alertmanager/config.yaml
+              name: alertmanager-claim1
+      hostname: alertmanager
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 10
+      volumes:
+        - name: alertmanager-data
+          persistentVolumeClaim:
+            claimName: alertmanager-data
+        - name: alertmanager-claim1
+          persistentVolumeClaim:
+            claimName: alertmanager-claim1
+status: {}

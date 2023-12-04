@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose --file docker-compose-resolved.yaml --profile k8s convert --out deployment
+    kompose.version: 1.31.2 (a92241f79)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: mc
+  name: mc
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: mc
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose --file docker-compose-resolved.yaml --profile k8s convert --out deployment
+        kompose.version: 1.31.2 (a92241f79)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/surrogate-optimisation-example: "true"
+        io.kompose.service: mc
+    spec:
+      containers:
+        - command:
+            - /bin/sh
+            - -c
+            - ' sleep 5;  /usr/bin/mc config host add s3 http://minio:9000 user password --api S3v4;   [[ ! -z "`/usr/bin/mc ls s3 | grep challenge`" ]] || /usr/bin/mc mb s3/mlflow;  /usr/bin/mc policy download s3/mlflow;   [[ ! -z "`/usr/bin/mc ls s3 | grep challenge`" ]] || /usr/bin/mc mb s3/prefect-flows;  /usr/bin/mc policy download s3/prefect-flows;   [[ ! -z "`/usr/bin/mc ls s3 | grep challenge`" ]] || /usr/bin/mc mb s3/data;  /usr/bin/mc policy download s3/data; exit 0; '
+          env:
+            - name: MINIO_ACCESS_KEY
+              value: user
+            - name: MINIO_PORT
+              value: "9000"
+            - name: MINIO_SECRET_KEY
+              value: password
+          image: minio/mc:RELEASE.2023-05-30T22-41-38Z
+          name: surrogate-optimisation-example-mc
+          resources: {}
+      hostname: mc
+      restartPolicy: Always
+status: {}

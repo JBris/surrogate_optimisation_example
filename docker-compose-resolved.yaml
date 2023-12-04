@@ -1,0 +1,435 @@
+name: surrogate_optimisation_example
+services:
+  adminer:
+    container_name: surrogate-optimisation-example-adminer
+    hostname: adminer
+    image: adminer:4.7.9-standalone
+    networks:
+      default: null
+    ports:
+    - mode: ingress
+      target: 8080
+      published: "8081"
+      protocol: tcp
+    restart: always
+    stop_grace_period: 10s
+  alertmanager:
+    command:
+    - --config.file=/etc/alertmanager/config.yaml
+    - --storage.path=/alertmanager
+    container_name: surrogate-optimisation-example-alertmanager
+    hostname: alertmanager
+    image: prom/alertmanager:v0.25.0
+    networks:
+      default: null
+    ports:
+    - mode: ingress
+      target: 9093
+      published: "9093"
+      protocol: tcp
+    restart: always
+    stop_grace_period: 10s
+    volumes:
+    - type: volume
+      source: alertmanager-data
+      target: /etc/alertmanager
+      volume: {}
+    - type: bind
+      source: /mnt/c/Users/james/projects/surrogate_optimisation_example/services/alertmanager/config.yaml
+      target: /etc/alertmanager/config.yaml
+      bind:
+        create_host_path: true
+  cadvisor:
+    container_name: surrogate-optimisation-example-cadvisor
+    hostname: cadvisor
+    image: gcr.io/cadvisor/cadvisor:v0.47.2
+    networks:
+      default: null
+    ports:
+    - mode: ingress
+      target: 8080
+      published: "8080"
+      protocol: tcp
+    restart: always
+    stop_grace_period: 10s
+    volumes:
+    - type: bind
+      source: /
+      target: /rootfs
+      read_only: true
+      bind:
+        create_host_path: true
+    - type: bind
+      source: /var/run
+      target: /var/run
+      bind:
+        create_host_path: true
+    - type: bind
+      source: /sys
+      target: /sys
+      read_only: true
+      bind:
+        create_host_path: true
+    - type: bind
+      source: /var/lib/docker/
+      target: /var/lib/docker
+      read_only: true
+      bind:
+        create_host_path: true
+  grafana:
+    container_name: surrogate-optimisation-example-grafana
+    environment:
+      GF_INSTALL_PLUGINS: grafana-clock-panel,grafana-simple-json-datasource,grafana-piechart-panel,grafana-worldmap-panel
+    hostname: grafana
+    image: grafana/grafana:9.5.5
+    networks:
+      default: null
+    ports:
+    - mode: ingress
+      target: 3000
+      published: "3000"
+      protocol: tcp
+    restart: always
+    stop_grace_period: 10s
+    user: "0"
+    volumes:
+    - type: volume
+      source: grafana-data
+      target: /var/lib/grafana
+      volume: {}
+    - type: bind
+      source: /mnt/c/Users/james/projects/surrogate_optimisation_example/services/grafana/grafana.ini
+      target: /etc/grafana/grafana.ini
+      bind:
+        create_host_path: true
+  mc:
+    container_name: surrogate-optimisation-example-mc
+    depends_on:
+      minio:
+        condition: service_started
+    entrypoint:
+    - /bin/sh
+    - -c
+    - ' sleep 5;  /usr/bin/mc config host add s3 http://minio:9000 user password --api
+      S3v4;   [[ ! -z "`/usr/bin/mc ls s3 | grep challenge`" ]] || /usr/bin/mc mb
+      s3/mlflow;  /usr/bin/mc policy download s3/mlflow;   [[ ! -z "`/usr/bin/mc ls
+      s3 | grep challenge`" ]] || /usr/bin/mc mb s3/prefect-flows;  /usr/bin/mc policy
+      download s3/prefect-flows;   [[ ! -z "`/usr/bin/mc ls s3 | grep challenge`"
+      ]] || /usr/bin/mc mb s3/data;  /usr/bin/mc policy download s3/data; exit 0; '
+    environment:
+      MINIO_ACCESS_KEY: user
+      MINIO_PORT: "9000"
+      MINIO_SECRET_KEY: password
+    hostname: mc
+    image: minio/mc:RELEASE.2023-05-30T22-41-38Z
+    networks:
+      default: null
+  minio:
+    command:
+    - server
+    - /data
+    - --console-address
+    - :9001
+    - --address
+    - :9000
+    container_name: surrogate-optimisation-example-minio
+    environment:
+      MINIO_ACCESS_KEY: user
+      MINIO_PROMETHEUS_AUTH_TYPE: public
+      MINIO_ROOT_PASSWORD: password
+      MINIO_ROOT_USER: user
+      MINIO_SECRET_KEY: password
+      MINIO_STORAGE_USE_HTTPS: "False"
+    hostname: minio
+    image: minio/minio:RELEASE.2023-05-27T05-56-19Z
+    networks:
+      default: null
+    ports:
+    - mode: ingress
+      target: 9000
+      published: "9000"
+      protocol: tcp
+    - mode: ingress
+      target: 9001
+      published: "9001"
+      protocol: tcp
+    restart: always
+    stop_grace_period: 10s
+    volumes:
+    - type: volume
+      source: minio-data
+      target: /data
+      volume: {}
+    working_dir: /data
+  mlflow:
+    command:
+    - mlflow
+    - server
+    - --serve-artifacts
+    - --host
+    - 0.0.0.0
+    - --port
+    - "5000"
+    - --backend-store-uri
+    - postgresql://user:password@postgres:5432/surrogate-optimisation-example
+    - --default-artifact-root
+    - s3://mlflow/
+    - --expose-prometheus
+    - /prometheus
+    container_name: surrogate-optimisation-example-mlflow
+    environment:
+      AWS_ACCESS_KEY_ID: user
+      AWS_SECRET_ACCESS_KEY: password
+      MLFLOW_BACKEND_STORE_URI: postgresql://user:password@postgres:5432/surrogate-optimisation-example
+      MLFLOW_S3_ENDPOINT_URL: http://minio:9000
+    hostname: mlflow
+    image: ghcr.io/jbris/prefect-surrogate-models:1.0.0
+    networks:
+      default: null
+    ports:
+    - mode: ingress
+      target: 5000
+      published: "5000"
+      protocol: tcp
+    restart: always
+    stop_grace_period: 10s
+    volumes:
+    - type: volume
+      source: mlflow-prometheus-data
+      target: /prometheus
+      volume: {}
+  nodeexporter:
+    command:
+    - --path.procfs=/host/proc
+    - --path.sysfs=/host/sys
+    - --collector.filesystem.ignored-mount-points
+    - ^/(sys|proc|dev|host|etc|rootfs/var/lib/docker/containers|rootfs/var/lib/docker/overlay2|rootfs/run/docker/netns|rootfs/var/lib/docker/aufs)($$|/)
+    container_name: surrogate-optimisation-example-nodeexporter
+    hostname: nodeexporter
+    image: prom/node-exporter:v1.5.0
+    networks:
+      default: null
+    ports:
+    - mode: ingress
+      target: 9100
+      published: "9100"
+      protocol: tcp
+    restart: always
+    stop_grace_period: 10s
+    volumes:
+    - type: bind
+      source: /proc
+      target: /host/proc
+      read_only: true
+      bind:
+        create_host_path: true
+    - type: bind
+      source: /sys
+      target: /host/sys
+      read_only: true
+      bind:
+        create_host_path: true
+    - type: bind
+      source: /
+      target: /rootfs
+      read_only: true
+      bind:
+        create_host_path: true
+  portainer:
+    command:
+    - -H
+    - unix:///var/run/docker.sock
+    container_name: surrogate-optimisation-example-portainer
+    hostname: portainer
+    image: portainer/portainer-ce:linux-arm64-2.18.2
+    networks:
+      default: null
+    ports:
+    - mode: ingress
+      target: 9000
+      published: "9443"
+      protocol: tcp
+    restart: always
+    stop_grace_period: 10s
+    volumes:
+    - type: bind
+      source: /var/run/docker.sock
+      target: /var/run/docker.sock
+      bind:
+        create_host_path: true
+    - type: volume
+      source: portainer-data
+      target: /data
+      volume: {}
+  postgres:
+    container_name: surrogate-optimisation-example-postgres
+    environment:
+      POSTGRES_DB: surrogate-optimisation-example
+      POSTGRES_PASSWORD: password
+      POSTGRES_USER: user
+    hostname: postgres
+    image: postgres:15.3-bullseye
+    networks:
+      default: null
+    ports:
+    - mode: ingress
+      target: 5432
+      published: "5432"
+      protocol: tcp
+    restart: always
+    stop_grace_period: 10s
+    volumes:
+    - type: volume
+      source: postgres-data
+      target: /var/lib/postgresql/data
+      volume: {}
+  prefect-agent:
+    container_name: surrogate-optimisation-example-prefect-agent
+    entrypoint:
+    - /opt/prefect/entrypoint.sh
+    - prefect
+    - agent
+    - start
+    - -q
+    - queue
+    environment:
+      PREFECT_API_URL: http://prefect-server:4200/api
+    hostname: prefect-agent
+    image: prefecthq/prefect:2.13.2-python3.10
+    networks:
+      default: null
+    restart: always
+    stop_grace_period: 10s
+  prefect-cli:
+    container_name: surrogate-optimisation-example-prefect-cli
+    environment:
+      AWS_ACCESS_KEY_ID: user
+      AWS_SECRET_ACCESS_KEY: password
+      MLFLOW_S3_ENDPOINT_URL: http://minio:9000
+      PREFECT_API_URL: http://prefect-server:4200/api
+      PROJECT_NAME: surrogate-optimisation-example
+    image: ghcr.io/jbris/prefect-surrogate-models:1.0.0
+    networks:
+      default: null
+    volumes:
+    - type: bind
+      source: /mnt/c/Users/james/projects/surrogate_optimisation_example
+      target: /project
+      bind:
+        create_host_path: true
+    working_dir: /project
+  prefect-postgres:
+    container_name: surrogate-optimisation-example-prefect-postgres
+    environment:
+      POSTGRES_DB: prefect
+      POSTGRES_PASSWORD: password
+      POSTGRES_USER: user
+    hostname: prefect-postgres
+    image: postgres:15.3-bullseye
+    networks:
+      default: null
+    ports:
+    - mode: ingress
+      target: 5432
+      published: "5433"
+      protocol: tcp
+    restart: always
+    stop_grace_period: 10s
+    volumes:
+    - type: volume
+      source: prefect-postgres-data
+      target: /var/lib/postgresql/data
+      volume: {}
+  prefect-server:
+    container_name: surrogate-optimisation-example-prefect-server
+    depends_on:
+      prefect-postgres:
+        condition: service_started
+    entrypoint:
+    - /opt/prefect/entrypoint.sh
+    - prefect
+    - server
+    - start
+    environment:
+      PREFECT_API_DATABASE_CONNECTION_URL: postgresql+asyncpg://user:password@prefect-postgres:5432/prefect
+      PREFECT_API_URL: http://127.0.0.1:4200/api
+      PREFECT_SERVER_API_HOST: 0.0.0.0
+      PREFECT_UI_URL: http://127.0.0.1:4200/api
+    hostname: prefect-server
+    image: prefecthq/prefect:2.13.2-python3.10
+    networks:
+      default: null
+    ports:
+    - mode: ingress
+      target: 4200
+      published: "4200"
+      protocol: tcp
+    restart: always
+    stop_grace_period: 10s
+    volumes:
+    - type: volume
+      source: prefect-data
+      target: /root/.prefect
+      volume: {}
+  prometheus:
+    command:
+    - --config.file=/etc/prometheus/prometheus.yaml
+    - --storage.tsdb.path=/prometheus
+    - --web.console.libraries=/usr/share/prometheus/console_libraries
+    - --web.console.templates=/usr/share/prometheus/consoles
+    container_name: surrogate-optimisation-example-prometheus
+    depends_on:
+      cadvisor:
+        condition: service_started
+      portainer:
+        condition: service_started
+    extra_hosts:
+      host.docker.internal: host-gateway
+    hostname: prometheus
+    image: prom/prometheus:v2.41.0
+    links:
+    - cadvisor:cadvisor
+    - portainer:portainer
+    networks:
+      default: null
+    ports:
+    - mode: ingress
+      target: 9090
+      published: "9090"
+      protocol: tcp
+    restart: always
+    stop_grace_period: 10s
+    user: "0"
+    volumes:
+    - type: bind
+      source: /mnt/c/Users/james/projects/surrogate_optimisation_example/services/prometheus
+      target: /etc/prometheus
+      bind:
+        create_host_path: true
+    - type: volume
+      source: prometheus-data
+      target: /prometheus
+      volume: {}
+networks:
+  default:
+    name: surrogate-optimisation-example
+    driver: bridge
+volumes:
+  alertmanager-data:
+    name: surrogate_optimisation_example_alertmanager-data
+  grafana-data:
+    name: surrogate_optimisation_example_grafana-data
+  minio-data:
+    name: surrogate_optimisation_example_minio-data
+  mlflow-prometheus-data:
+    name: surrogate_optimisation_example_mlflow-prometheus-data
+  portainer-data:
+    name: surrogate_optimisation_example_portainer-data
+  postgres-data:
+    name: surrogate_optimisation_example_postgres-data
+  prefect-data:
+    name: surrogate_optimisation_example_prefect-data
+  prefect-postgres-data:
+    name: surrogate_optimisation_example_prefect-postgres-data
+  prometheus-data:
+    name: surrogate_optimisation_example_prometheus-data

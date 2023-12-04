@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose --file docker-compose-resolved.yaml --profile k8s convert --out deployment
+    kompose.version: 1.31.2 (a92241f79)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: cadvisor
+  name: cadvisor
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: cadvisor
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose --file docker-compose-resolved.yaml --profile k8s convert --out deployment
+        kompose.version: 1.31.2 (a92241f79)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/surrogate-optimisation-example: "true"
+        io.kompose.service: cadvisor
+    spec:
+      containers:
+        - image: gcr.io/cadvisor/cadvisor:v0.47.2
+          name: surrogate-optimisation-example-cadvisor
+          ports:
+            - containerPort: 8080
+              hostPort: 8080
+              protocol: TCP
+          resources: {}
+          volumeMounts:
+            - mountPath: /rootfs
+              name: cadvisor-claim0
+              readOnly: true
+            - mountPath: /var/run
+              name: cadvisor-claim1
+            - mountPath: /sys
+              name: cadvisor-claim2
+              readOnly: true
+            - mountPath: /var/lib/docker
+              name: cadvisor-claim3
+              readOnly: true
+      hostname: cadvisor
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 10
+      volumes:
+        - name: cadvisor-claim0
+          persistentVolumeClaim:
+            claimName: cadvisor-claim0
+            readOnly: true
+        - name: cadvisor-claim1
+          persistentVolumeClaim:
+            claimName: cadvisor-claim1
+        - name: cadvisor-claim2
+          persistentVolumeClaim:
+            claimName: cadvisor-claim2
+            readOnly: true
+        - name: cadvisor-claim3
+          persistentVolumeClaim:
+            claimName: cadvisor-claim3
+            readOnly: true
+status: {}

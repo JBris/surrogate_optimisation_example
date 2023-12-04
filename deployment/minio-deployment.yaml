@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose --file docker-compose-resolved.yaml --profile k8s convert --out deployment
+    kompose.version: 1.31.2 (a92241f79)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: minio
+  name: minio
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: minio
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose --file docker-compose-resolved.yaml --profile k8s convert --out deployment
+        kompose.version: 1.31.2 (a92241f79)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/surrogate-optimisation-example: "true"
+        io.kompose.service: minio
+    spec:
+      containers:
+        - args:
+            - server
+            - /data
+            - --console-address
+            - :9001
+            - --address
+            - :9000
+          env:
+            - name: MINIO_ACCESS_KEY
+              value: user
+            - name: MINIO_PROMETHEUS_AUTH_TYPE
+              value: public
+            - name: MINIO_ROOT_PASSWORD
+              value: password
+            - name: MINIO_ROOT_USER
+              value: user
+            - name: MINIO_SECRET_KEY
+              value: password
+            - name: MINIO_STORAGE_USE_HTTPS
+              value: "False"
+          image: minio/minio:RELEASE.2023-05-27T05-56-19Z
+          name: surrogate-optimisation-example-minio
+          ports:
+            - containerPort: 9000
+              hostPort: 9000
+              protocol: TCP
+            - containerPort: 9001
+              hostPort: 9001
+              protocol: TCP
+          resources: {}
+          volumeMounts:
+            - mountPath: /data
+              name: minio-data
+          workingDir: /data
+      hostname: minio
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 10
+      volumes:
+        - name: minio-data
+          persistentVolumeClaim:
+            claimName: minio-data
+status: {}

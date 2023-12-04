@@ -1,0 +1,264 @@
+version: "3.9"
+
+services:
+
+  prefect-cli:
+    image: $GITHUB_CONTAINER_REPO
+    container_name: ${PROJECT_NAME}-prefect-cli
+    working_dir: /project
+    environment:
+      PREFECT_API_URL: $PREFECT_API_URL
+      PROJECT_NAME: $PROJECT_NAME
+      AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID
+      AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY
+      MLFLOW_S3_ENDPOINT_URL: $MLFLOW_S3_ENDPOINT_URL
+    volumes:
+      - .:/project
+
+  prefect-server:
+    image: prefecthq/prefect:${PREFECT_TAG}
+    container_name: ${PROJECT_NAME}-prefect-server
+    hostname: prefect-server
+    restart: always
+    stop_grace_period: 10s
+    environment:
+      PREFECT_UI_URL: $PREFECT_UI_URL
+      PREFECT_API_URL: $PREFECT_SERVER_API_URL
+      PREFECT_SERVER_API_HOST: 0.0.0.0
+      PREFECT_API_DATABASE_CONNECTION_URL: $PREFECT_API_DATABASE_CONNECTION_URL 
+    depends_on:
+      - prefect-postgres
+    ports:
+      - ${PREFECT_PORT}:4200
+    volumes:
+      - prefect-data:/root/.prefect
+    entrypoint: ["/opt/prefect/entrypoint.sh", "prefect", "server", "start"]
+
+  prefect-agent:
+    image: prefecthq/prefect:${PREFECT_TAG}
+    container_name: ${PROJECT_NAME}-prefect-agent
+    hostname: prefect-agent
+    restart: always
+    stop_grace_period: 10s
+    environment:
+      PREFECT_API_URL: $PREFECT_API_URL
+    entrypoint: ["/opt/prefect/entrypoint.sh", "prefect", "agent", "start", "-q", "queue"]
+
+  prefect-postgres:
+    image: postgres:${POSTGRES_TAG}
+    container_name: ${PROJECT_NAME}-prefect-postgres
+    hostname: prefect-postgres
+    restart: always
+    stop_grace_period: 10s
+    environment:
+      POSTGRES_PASSWORD: $DB_PASSWORD
+      POSTGRES_DB: prefect
+      POSTGRES_USER: $DB_USER
+    ports:
+      - ${PREFECT_DB_PORT}:5432
+    volumes:
+      - prefect-postgres-data:/var/lib/postgresql/data
+
+  mlflow:
+    image: $GITHUB_CONTAINER_REPO
+    container_name: ${PROJECT_NAME}-mlflow
+    hostname: mlflow
+    restart: always
+    stop_grace_period: 10s
+    environment:
+      MLFLOW_BACKEND_STORE_URI: $MLFLOW_BACKEND_STORE_URI
+      MLFLOW_S3_ENDPOINT_URL: $MLFLOW_S3_ENDPOINT_URL
+      AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID
+      AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY
+    ports:
+      - ${MLFLOW_PORT}:5000
+    volumes:
+      - mlflow-prometheus-data:/prometheus
+    command: >
+      mlflow server --serve-artifacts --host 0.0.0.0 --port 5000 
+      --backend-store-uri "${MLFLOW_BACKEND_STORE_URI}" --default-artifact-root s3://mlflow/
+      --expose-prometheus /prometheus
+
+  minio:
+    image: minio/minio:${MINIO_TAG}
+    container_name: ${PROJECT_NAME}-minio
+    hostname: minio
+    restart: always
+    stop_grace_period: 10s
+    working_dir: /data
+    volumes:
+      - minio-data:/data
+    ports:
+      - ${MINIO_PORT}:9000
+      - ${MINIO_CONSOLE_PORT}:9001
+    environment:
+      MINIO_ACCESS_KEY: $MINIO_ACCESS_KEY
+      MINIO_SECRET_KEY: $MINIO_SECRET_KEY
+      MINIO_ROOT_USER: $MINIO_ROOT_USER
+      MINIO_ROOT_PASSWORD: $MINIO_ROOT_PASSWORD
+      MINIO_STORAGE_USE_HTTPS: $MINIO_STORAGE_USE_HTTPS
+      MINIO_PROMETHEUS_AUTH_TYPE: $MINIO_PROMETHEUS_AUTH_TYPE
+    command: server /data --console-address ':9001' --address ':9000'
+
+  mc:
+    image: minio/mc:${MINIO_MC_TAG}
+    container_name: ${PROJECT_NAME}-mc
+    hostname: mc
+    environment:
+      MINIO_PORT: $MINIO_PORT
+      MINIO_ACCESS_KEY: $MINIO_ACCESS_KEY
+      MINIO_SECRET_KEY: $MINIO_SECRET_KEY
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c ' sleep 5; 
+      /usr/bin/mc config host add s3 http://minio:9000 ${MINIO_ACCESS_KEY} ${MINIO_SECRET_KEY} --api S3v4;  
+      [[ ! -z "`/usr/bin/mc ls s3 | grep challenge`" ]] || /usr/bin/mc mb s3/mlflow;  /usr/bin/mc policy download s3/mlflow;  
+      [[ ! -z "`/usr/bin/mc ls s3 | grep challenge`" ]] || /usr/bin/mc mb s3/prefect-flows;  /usr/bin/mc policy download s3/prefect-flows;  
+      [[ ! -z "`/usr/bin/mc ls s3 | grep challenge`" ]] || /usr/bin/mc mb s3/data;  /usr/bin/mc policy download s3/data; exit 0; '
+
+  grafana:
+    image: grafana/grafana:${GRAFANA_TAG}
+    container_name: ${PROJECT_NAME}-grafana
+    hostname: grafana
+    restart: always
+    stop_grace_period: 10s
+    user: '0'
+    ports:
+      - ${GRAFANA_PORT}:3000
+    environment:
+      GF_INSTALL_PLUGINS: $GF_INSTALL_PLUGINS
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./services/grafana/grafana.ini:/etc/grafana/grafana.ini
+      
+  postgres:
+    image: postgres:${POSTGRES_TAG}
+    container_name: ${PROJECT_NAME}-postgres
+    hostname: postgres
+    restart: always
+    stop_grace_period: 10s
+    environment:
+      POSTGRES_PASSWORD: $DB_PASSWORD
+      POSTGRES_DB: $DB_NAME
+      POSTGRES_USER: $DB_USER
+    ports:
+      - ${DB_PORT}:5432
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  adminer:
+    image: adminer:${ADMINER_TAG}
+    container_name: ${PROJECT_NAME}-adminer
+    hostname: adminer
+    restart: always
+    stop_grace_period: 10s
+    ports:
+      - ${ADMINER_PORT}:8080
+
+  portainer:
+    image: portainer/portainer-ce:${PORTAINER_TAG}
+    container_name: ${PROJECT_NAME}-portainer
+    hostname: portainer
+    command: -H unix:///var/run/docker.sock
+    restart: always
+    stop_grace_period: 10s
+
+    ports:
+      - ${PORTAINER_PORT}:9000
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer-data:/data
+
+  prometheus:
+    image: prom/prometheus:${PROMETHEUS_TAG}
+    container_name: ${PROJECT_NAME}-prometheus
+    hostname: prometheus
+    restart: always
+    stop_grace_period: 10s
+
+    user: "0"
+    ports:
+      - ${PROMETHEUS_PORT}:9090
+    volumes:
+      - ./services/prometheus/:/etc/prometheus/
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yaml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+    links:
+      - cadvisor:cadvisor
+      - portainer:portainer
+    depends_on:
+      - cadvisor
+      - portainer
+    extra_hosts:
+      - host.docker.internal:host-gateway
+
+  nodeexporter:
+    image: prom/node-exporter:${PROMETHEUS_NODE_EXPORTER_TAG}
+    container_name: ${PROJECT_NAME}-nodeexporter
+    hostname: nodeexporter
+    restart: always
+    stop_grace_period: 10s
+
+    ports:
+      - ${PROMETHEUS_NODE_EXPORTER_PORT}:9100
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command: 
+      - '--path.procfs=/host/proc' 
+      - '--path.sysfs=/host/sys'
+      - --collector.filesystem.ignored-mount-points
+      - "^/(sys|proc|dev|host|etc|rootfs/var/lib/docker/containers|rootfs/var/lib/docker/overlay2|rootfs/run/docker/netns|rootfs/var/lib/docker/aufs)($$|/)"
+
+  alertmanager:
+    image: prom/alertmanager:${PROMETHEUS_ALERT_MANAGER_TAG}
+    container_name: ${PROJECT_NAME}-alertmanager
+    hostname: alertmanager
+    restart: always
+    stop_grace_period: 10s
+
+    ports:
+      - ${PROMETHEUS_ALERT_MANAGER_PORT}:9093
+    volumes:
+      - alertmanager-data:/etc/alertmanager
+      - ./services/alertmanager/config.yaml:/etc/alertmanager/config.yaml
+    command:
+      - '--config.file=/etc/alertmanager/config.yaml'
+      - '--storage.path=/alertmanager'
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:${PROMETHEUS_CADVISOR_TAG}
+    container_name: ${PROJECT_NAME}-cadvisor
+    hostname: cadvisor
+    restart: always
+    stop_grace_period: 10s
+
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    ports:
+      - ${PROMETHEUS_CADVISOR_PORT}:8080
+
+networks:
+  default:
+    name: $PROJECT_NAME
+    driver: bridge
+    
+volumes:
+  mlflow-prometheus-data: {}
+  prefect-data: {}
+  postgres-data: {}
+  prefect-postgres-data: {}
+  minio-data: {}
+  grafana-data: {}
+  portainer-data: {}
+  prometheus-data: {}
+  alertmanager-data: {}

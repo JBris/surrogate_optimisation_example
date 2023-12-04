@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose --file docker-compose-resolved.yaml --profile k8s convert --out deployment
+    kompose.version: 1.31.2 (a92241f79)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: prefect-cli
+  name: prefect-cli
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: prefect-cli
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose --file docker-compose-resolved.yaml --profile k8s convert --out deployment
+        kompose.version: 1.31.2 (a92241f79)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/surrogate-optimisation-example: "true"
+        io.kompose.service: prefect-cli
+    spec:
+      containers:
+        - env:
+            - name: AWS_ACCESS_KEY_ID
+              value: user
+            - name: AWS_SECRET_ACCESS_KEY
+              value: password
+            - name: MLFLOW_S3_ENDPOINT_URL
+              value: http://minio:9000
+            - name: PREFECT_API_URL
+              value: http://prefect-server:4200/api
+            - name: PROJECT_NAME
+              value: surrogate-optimisation-example
+          image: ghcr.io/jbris/prefect-surrogate-models:1.0.0
+          name: surrogate-optimisation-example-prefect-cli
+          resources: {}
+          volumeMounts:
+            - mountPath: /project
+              name: prefect-cli-claim0
+          workingDir: /project
+      restartPolicy: Always
+      volumes:
+        - name: prefect-cli-claim0
+          persistentVolumeClaim:
+            claimName: prefect-cli-claim0
+status: {}

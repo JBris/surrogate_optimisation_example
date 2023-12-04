@@ -1,2 +1,3 @@
 # surrogate_optimisation_example
-Example of surrogate optimisation
+
+Example of surrogate optimisation.
