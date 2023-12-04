@@ -163,7 +163,6 @@ services:
     command: -H unix:///var/run/docker.sock
     restart: always
     stop_grace_period: 10s
-
     ports:
       - ${PORTAINER_PORT}:9000
     volumes:
@@ -176,7 +175,6 @@ services:
     hostname: prometheus
     restart: always
     stop_grace_period: 10s
-
     user: "0"
     ports:
       - ${PROMETHEUS_PORT}:9090
@@ -203,7 +201,6 @@ services:
     hostname: nodeexporter
     restart: always
     stop_grace_period: 10s
-
     ports:
       - ${PROMETHEUS_NODE_EXPORTER_PORT}:9100
     volumes:
@@ -222,7 +219,6 @@ services:
     hostname: alertmanager
     restart: always
     stop_grace_period: 10s
-
     ports:
       - ${PROMETHEUS_ALERT_MANAGER_PORT}:9093
     volumes:
@@ -238,7 +234,6 @@ services:
     hostname: cadvisor
     restart: always
     stop_grace_period: 10s
-
     volumes:
       - /:/rootfs:ro
       - /var/run:/var/run:rw

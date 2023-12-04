@@ -1,0 +1,4 @@
+data_dir: data
+input_dir: input
+parameters_file: parameters.csv
+outputs_file: outputs.csv
