@@ -8,3 +8,9 @@ Optimise Surrogate
 
 .. autodata:: flows.optimise_surrogate.load_data
    :annotation:
+
+.. autodata:: flows.optimise_surrogate.to_tensor
+   :annotation:
+
+.. autodata:: flows.optimise_surrogate.fit_model
+   :annotation:

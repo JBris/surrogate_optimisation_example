@@ -5,3 +5,6 @@ Data Models
 
 .. autoclass:: flows.DataModels.DataModel     
    :members: 
+
+.. autoclass:: flows.DataModels.GpModel     
+   :members: 
