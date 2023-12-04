@@ -7,6 +7,7 @@
 # External
 
 import hydra
+import kaleido
 import mlflow
 import numpy as np
 from omegaconf import DictConfig, OmegaConf
@@ -276,7 +277,8 @@ def optimise_model(
     model: MultitaskVariationalGPModel,
     likelihood: gpytorch.likelihoods.MultitaskGaussianLikelihood,
     scaler: MinMaxScaler, parameters_df: pd.DataFrame, outputs_df: pd.DataFrame,
-    n_trials: int, n_jobs: int, params: dict, device: torch.cuda.device
+    n_trials: int, n_jobs: int, params: dict, device: torch.cuda.device,
+    data_dir: str, output_dir: str
 ) -> None:
     """
     Optimise the surrogate model.
@@ -300,6 +302,10 @@ def optimise_model(
             The optimisation sampler parameter dictionary.
         device (torch.cuda.device):
             The tensor device.
+        data_dir (str):
+            The data directory.
+        output_dir (str):
+            The data output directory.
     """
     parameters_df_bounds = parameters_df.agg(["min", "max"])
     directions = list(np.repeat("minimize", outputs_df.shape[1]))
@@ -311,6 +317,22 @@ def optimise_model(
         n_trials = n_trials, n_jobs = 1, gc_after_trial = True, 
         show_progress_bar = (n_jobs == 1)
     )
+
+    outdir = str(Path(data_dir, output_dir))
+    def __plot_results(plot_func, plot_name: str, i:int, col: str):
+        img_file = str(
+            Path(outdir, f"{plot_name}_{col}.png")
+        )
+        plot_func(
+            study, target=lambda t: t.values[i], target_name = col
+        ).write_image(img_file)
+
+    for i, col in enumerate(outputs_df.columns):
+        __plot_results(optuna.visualization.plot_edf, "edf", i, col)
+        __plot_results(optuna.visualization.plot_optimization_history, "optimization_history", i, col)
+        __plot_results(optuna.visualization.plot_parallel_coordinate, "parallel_coordinate", i, col)
+        __plot_results(optuna.visualization.plot_param_importances, "param_importances", i, col)
+        __plot_results(optuna.visualization.plot_slice, "slice", i, col)
 
 @flow(
     name="Optimise Surrogate",
@@ -350,7 +372,8 @@ def optimise_surrogate_flow(
     optimise_model(
         model, likelihood, scaler, parameters_df, outputs_df, 
         optimisation_model.n_trials, optimisation_model.n_jobs, 
-        optimisation_model.params, device
+        optimisation_model.params, device, data_model.data_dir,
+        data_model.output_dir
     )
 
 

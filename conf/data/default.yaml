@@ -1,5 +1,6 @@
 data_dir: data
 input_dir: input
+output_dir: output
 parameters_file: parameters.csv
 outputs_file: outputs.csv
 inputs: 

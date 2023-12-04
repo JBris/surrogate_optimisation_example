@@ -9,9 +9,9 @@ class DataModel(BaseModel):
         BaseModel (_type_):
             The Base model class.
     """
-
     data_dir: str
     input_dir: str
+    output_dir: str
     parameters_file: str
     outputs_file: str
     inputs: list[str]
@@ -26,7 +26,6 @@ class GpModel(BaseModel):
         BaseModel (_type_):
             The Base model class.
     """
-
     num_latents: int
     num_epochs: int
     lr: float
