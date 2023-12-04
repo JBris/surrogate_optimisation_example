@@ -10,7 +10,7 @@ amqp==5.1.1
 antlr4-python3-runtime==4.9.3
 anyio==3.7.1
 appdirs==1.4.4
-apprise==1.5.0
+apprise==1.6.0
 argon2-cffi==23.1.0
 argon2-cffi-bindings==21.2.0
 arviz==0.15.1
