@@ -1,0 +1,336 @@
+
+
+<!doctype html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Optimise Surrogate &#8212; Surrogate Optimisation Example  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=649a27d8" />
+    <link rel="stylesheet" type="text/css" href="../_static/bizstyle.css?v=532c1bf3" />
+    
+    <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/bizstyle.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="Data Models" href="DataModels.html" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <!--[if lt IE 9]>
+    <script src="_static/css3-mediaqueries.js"></script>
+    <![endif]-->
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="DataModels.html" title="Data Models"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Surrogate Optimisation Example  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Surrogate Optimisation Example Flows</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Optimise Surrogate</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="optimise-surrogate">
+<h1>Optimise Surrogate<a class="headerlink" href="#optimise-surrogate" title="Link to this heading">¶</a></h1>
+<p><em>Date published:</em> 05/12/23</p>
+<dl class="py class" id="module-flows.optimise_surrogate">
+<dt class="sig sig-object py" id="flows.optimise_surrogate.MultitaskVariationalGPModel">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">flows.optimise_surrogate.</span></span><span class="sig-name descname"><span class="pre">MultitaskVariationalGPModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_latents</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_tasks</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/flows/optimise_surrogate.html#MultitaskVariationalGPModel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flows.optimise_surrogate.MultitaskVariationalGPModel" title="Link to this definition">¶</a></dt>
+<dd><p>A multitask variational Gaussian process model.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt>gpytorch (_type_):</dt><dd><p>An approximate, variational Gaussian process.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="flows.optimise_surrogate.MultitaskVariationalGPModel.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">MultivariateNormal</span></span></span><a class="reference internal" href="../_modules/flows/optimise_surrogate.html#MultitaskVariationalGPModel.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flows.optimise_surrogate.MultitaskVariationalGPModel.forward" title="Link to this definition">¶</a></dt>
+<dd><p>The forward pass.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt>x (torch.Tensor):</dt><dd><p>The input data.</p>
+</dd>
+</dl>
+</dd>
+<dt>Returns:</dt><dd><dl class="simple">
+<dt>gpytorch.distributions.MultivariateNormal:</dt><dd><p>A multivariate normal random variable.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="flows.optimise_surrogate.begin_experiment">
+<span class="sig-prename descclassname"><span class="pre">flows.optimise_surrogate.</span></span><span class="sig-name descname"><span class="pre">begin_experiment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">task</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">experiment_prefix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tracking_uri</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/flows/optimise_surrogate.html#begin_experiment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flows.optimise_surrogate.begin_experiment" title="Link to this definition">¶</a></dt>
+<dd><p>Begin the experiment session.</p>
+<dl class="simple">
+<dt>Args:   </dt><dd><dl class="simple">
+<dt>task (str):</dt><dd><p>The name of the current task for the experiment.</p>
+</dd>
+<dt>experiment_prefix (str):</dt><dd><p>The prefix for the experiment name.</p>
+</dd>
+<dt>tracking_uri (str):</dt><dd><p>The experiment tracking URI.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="flows.optimise_surrogate.main">
+<span class="sig-prename descclassname"><span class="pre">flows.optimise_surrogate.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DictConfig</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/flows/optimise_surrogate.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flows.optimise_surrogate.main" title="Link to this definition">¶</a></dt>
+<dd><p>Optimise a surrogate model.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt>config (DictConfig):</dt><dd><p>The main configuration.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="flows.optimise_surrogate.objective">
+<span class="sig-prename descclassname"><span class="pre">flows.optimise_surrogate.</span></span><span class="sig-name descname"><span class="pre">objective</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trial</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#flows.optimise_surrogate.MultitaskVariationalGPModel" title="flows.optimise_surrogate.MultitaskVariationalGPModel"><span class="pre">MultitaskVariationalGPModel</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">likelihood</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">MultitaskGaussianLikelihood</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scaler</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">MinMaxScaler</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters_df_bounds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">device</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/flows/optimise_surrogate.html#objective"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flows.optimise_surrogate.objective" title="Link to this definition">¶</a></dt>
+<dd><p>The optimisation objective function.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt>trial (_type_):</dt><dd><p>The trial object.</p>
+</dd>
+<dt>model (MultitaskVariationalGPModel):</dt><dd><p>The surrogate model.</p>
+</dd>
+<dt>likelihood (gpytorch.likelihoods.MultitaskGaussianLikelihood):</dt><dd><p>The Gaussian process likelihood.</p>
+</dd>
+<dt>scaler (MinMaxScaler):</dt><dd><p>The data scaler.</p>
+</dd>
+<dt>parameters_df_bounds (pd.DataFrame):</dt><dd><p>The bounds of the input parameter dataframe.</p>
+</dd>
+<dt>device (torch.cuda.device):</dt><dd><p>The tensor device.</p>
+</dd>
+</dl>
+</dd>
+<dt>Returns:</dt><dd><p>tuple[any]: _description_</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="flows.optimise_surrogate.load_data">
+<span class="sig-prename descclassname"><span class="pre">flows.optimise_surrogate.</span></span><span class="sig-name descname"><span class="pre">load_data</span></span><a class="reference internal" href="../_modules/flows/optimise_surrogate.html#load_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flows.optimise_surrogate.load_data" title="Link to this definition">¶</a></dt>
+<dd><p>Load the parameters and outputs dataframes.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt>data_dir (str):</dt><dd><p>The data directory.</p>
+</dd>
+<dt>input_dir (str):</dt><dd><p>The data input directory.</p>
+</dd>
+<dt>parameters_file (str):</dt><dd><p>The parameters dataframe filename.</p>
+</dd>
+<dt>outputs_file (str):</dt><dd><p>The outputs dataframe filename.</p>
+</dd>
+<dt>inputs (list[str]):</dt><dd><p>The list of input columns.</p>
+</dd>
+<dt>outputs (list[str]):</dt><dd><p>The list of output columns.</p>
+</dd>
+</dl>
+</dd>
+<dt>Returns:</dt><dd><dl class="simple">
+<dt>tuple[pd.DataFrame, pd.DataFrame]:</dt><dd><p>The parameters and outputs dataframes.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="flows.optimise_surrogate.to_tensor">
+<span class="sig-prename descclassname"><span class="pre">flows.optimise_surrogate.</span></span><span class="sig-name descname"><span class="pre">to_tensor</span></span><a class="reference internal" href="../_modules/flows/optimise_surrogate.html#to_tensor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flows.optimise_surrogate.to_tensor" title="Link to this definition">¶</a></dt>
+<dd><p>Convert dataframes to tensors.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt>parameters_df (pd.DataFrame):</dt><dd><p>The parameter dataframe.</p>
+</dd>
+<dt>outputs_df (pd.DataFrame):</dt><dd><p>The output dataframe.</p>
+</dd>
+<dt>device (torch.cuda.device):</dt><dd><p>The tensor device.</p>
+</dd>
+</dl>
+</dd>
+<dt>Returns:</dt><dd><dl class="simple">
+<dt>tuple[torch.Tensor, torch.Tensor]:</dt><dd><p>The parameter and output tensors.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="flows.optimise_surrogate.fit_model">
+<span class="sig-prename descclassname"><span class="pre">flows.optimise_surrogate.</span></span><span class="sig-name descname"><span class="pre">fit_model</span></span><a class="reference internal" href="../_modules/flows/optimise_surrogate.html#fit_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flows.optimise_surrogate.fit_model" title="Link to this definition">¶</a></dt>
+<dd><p>Train a Gaussian process model.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt>X (pd.DataFrame):</dt><dd><p>The input matrix.</p>
+</dd>
+<dt>Y (pd.DataFrame):</dt><dd><p>The output matrix.</p>
+</dd>
+<dt>outputs (list[str]):</dt><dd><p>A list of output names.</p>
+</dd>
+<dt>device (torch.cuda.device):</dt><dd><p>The tensor and model device.</p>
+</dd>
+<dt>num_latents (int):</dt><dd><p>The number of latent variables.</p>
+</dd>
+<dt>num_epochs (int):</dt><dd><p>The number of training epochs.</p>
+</dd>
+<dt>lr (float):</dt><dd><p>The training learning rate.</p>
+</dd>
+<dt>experiment_prefix (str):</dt><dd><p>The prefix for the experiment name.</p>
+</dd>
+<dt>tracking_uri (str):</dt><dd><p>The experiment tracking URI.</p>
+</dd>
+</dl>
+</dd>
+<dt>Returns:</dt><dd><dl class="simple">
+<dt>tuple[MultitaskVariationalGPModel, gpytorch.likelihoods.MultitaskGaussianLikelihood]:</dt><dd><p>The trained model and likelihood.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="flows.optimise_surrogate.optimise_model">
+<span class="sig-prename descclassname"><span class="pre">flows.optimise_surrogate.</span></span><span class="sig-name descname"><span class="pre">optimise_model</span></span><a class="reference internal" href="../_modules/flows/optimise_surrogate.html#optimise_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flows.optimise_surrogate.optimise_model" title="Link to this definition">¶</a></dt>
+<dd><p>Optimise the surrogate model.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt>model (MultitaskVariationalGPModel):</dt><dd><p>The surrogate model.</p>
+</dd>
+<dt>likelihood (gpytorch.likelihoods.MultitaskGaussianLikelihood):</dt><dd><p>The Gaussian process likelihood.</p>
+</dd>
+<dt>scaler (MinMaxScaler):</dt><dd><p>The data scaler.</p>
+</dd>
+<dt>parameters_df (pd.DataFrame):</dt><dd><p>The input parameter dataframe.</p>
+</dd>
+<dt>outputs_df (pd.DataFrame):</dt><dd><p>The output dataframe.</p>
+</dd>
+<dt>n_trials (int):</dt><dd><p>The number of optimisation trials.</p>
+</dd>
+<dt>n_jobs (int):</dt><dd><p>The number of trials to run in parallel.</p>
+</dd>
+<dt>params (dict):</dt><dd><p>The optimisation sampler parameter dictionary.</p>
+</dd>
+<dt>device (torch.cuda.device):</dt><dd><p>The tensor device.</p>
+</dd>
+<dt>data_dir (str):</dt><dd><p>The data directory.</p>
+</dd>
+<dt>output_dir (str):</dt><dd><p>The data output directory.</p>
+</dd>
+<dt>experiment_prefix (str):</dt><dd><p>The prefix for the experiment name.</p>
+</dd>
+<dt>tracking_uri (str):</dt><dd><p>The experiment tracking URI.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div>
+    <h3><a href="../index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">Optimise Surrogate</a><ul>
+<li><a class="reference internal" href="#flows.optimise_surrogate.MultitaskVariationalGPModel"><code class="docutils literal notranslate"><span class="pre">MultitaskVariationalGPModel</span></code></a><ul>
+<li><a class="reference internal" href="#flows.optimise_surrogate.MultitaskVariationalGPModel.forward"><code class="docutils literal notranslate"><span class="pre">MultitaskVariationalGPModel.forward()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#flows.optimise_surrogate.begin_experiment"><code class="docutils literal notranslate"><span class="pre">begin_experiment()</span></code></a></li>
+<li><a class="reference internal" href="#flows.optimise_surrogate.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+<li><a class="reference internal" href="#flows.optimise_surrogate.objective"><code class="docutils literal notranslate"><span class="pre">objective()</span></code></a></li>
+<li><a class="reference internal" href="#flows.optimise_surrogate.load_data"><code class="docutils literal notranslate"><span class="pre">load_data</span></code></a></li>
+<li><a class="reference internal" href="#flows.optimise_surrogate.to_tensor"><code class="docutils literal notranslate"><span class="pre">to_tensor</span></code></a></li>
+<li><a class="reference internal" href="#flows.optimise_surrogate.fit_model"><code class="docutils literal notranslate"><span class="pre">fit_model</span></code></a></li>
+<li><a class="reference internal" href="#flows.optimise_surrogate.optimise_model"><code class="docutils literal notranslate"><span class="pre">optimise_model</span></code></a></li>
+</ul>
+</li>
+</ul>
+
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="DataModels.html"
+                          title="previous chapter">Data Models</a></p>
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/flows/optimise_surrogate.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="DataModels.html" title="Data Models"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Surrogate Optimisation Example  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Surrogate Optimisation Example Flows</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Optimise Surrogate</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2023, James Bristow.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.5.
+    </div>
+  </body>
+</html>
