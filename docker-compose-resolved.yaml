@@ -1,4 +1,4 @@
-name: surrogate_optimisation_example
+name: 64aa74b43feb754c344c1b5144d4fbb67ad96dea595beff53c529ff5a5ebab6c
 services:
   adminer:
     container_name: surrogate-optimisation-example-adminer
@@ -35,7 +35,7 @@ services:
       target: /etc/alertmanager
       volume: {}
     - type: bind
-      source: /mnt/c/Users/james/projects/surrogate_optimisation_example/services/alertmanager/config.yaml
+      source: /mnt/wsl/docker-desktop-bind-mounts/Ubuntu-20.04/8a5edab282632443219e051e4ade2d1d5bbc671c781051bf1437897cbdfea0f1/mnt/wsl/docker-desktop-bind-mounts/Ubuntu-20.04/64aa74b43feb754c344c1b5144d4fbb67ad96dea595beff53c529ff5a5ebab6c/services/alertmanager/config.yaml
       target: /etc/alertmanager/config.yaml
       bind:
         create_host_path: true
@@ -98,7 +98,7 @@ services:
       target: /var/lib/grafana
       volume: {}
     - type: bind
-      source: /mnt/c/Users/james/projects/surrogate_optimisation_example/services/grafana/grafana.ini
+      source: /mnt/wsl/docker-desktop-bind-mounts/Ubuntu-20.04/8a5edab282632443219e051e4ade2d1d5bbc671c781051bf1437897cbdfea0f1/mnt/wsl/docker-desktop-bind-mounts/Ubuntu-20.04/64aa74b43feb754c344c1b5144d4fbb67ad96dea595beff53c529ff5a5ebab6c/services/grafana/grafana.ini
       target: /etc/grafana/grafana.ini
       bind:
         create_host_path: true
@@ -313,7 +313,7 @@ services:
       default: null
     volumes:
     - type: bind
-      source: /mnt/c/Users/james/projects/surrogate_optimisation_example
+      source: /mnt/wsl/docker-desktop-bind-mounts/Ubuntu-20.04/8a5edab282632443219e051e4ade2d1d5bbc671c781051bf1437897cbdfea0f1/mnt/wsl/docker-desktop-bind-mounts/Ubuntu-20.04/64aa74b43feb754c344c1b5144d4fbb67ad96dea595beff53c529ff5a5ebab6c
       target: /project
       bind:
         create_host_path: true
@@ -402,7 +402,7 @@ services:
     user: "0"
     volumes:
     - type: bind
-      source: /mnt/c/Users/james/projects/surrogate_optimisation_example/services/prometheus
+      source: /mnt/wsl/docker-desktop-bind-mounts/Ubuntu-20.04/8a5edab282632443219e051e4ade2d1d5bbc671c781051bf1437897cbdfea0f1/mnt/wsl/docker-desktop-bind-mounts/Ubuntu-20.04/64aa74b43feb754c344c1b5144d4fbb67ad96dea595beff53c529ff5a5ebab6c/services/prometheus
       target: /etc/prometheus
       bind:
         create_host_path: true
@@ -416,20 +416,20 @@ networks:
     driver: bridge
 volumes:
   alertmanager-data:
-    name: surrogate_optimisation_example_alertmanager-data
+    name: 64aa74b43feb754c344c1b5144d4fbb67ad96dea595beff53c529ff5a5ebab6c_alertmanager-data
   grafana-data:
-    name: surrogate_optimisation_example_grafana-data
+    name: 64aa74b43feb754c344c1b5144d4fbb67ad96dea595beff53c529ff5a5ebab6c_grafana-data
   minio-data:
-    name: surrogate_optimisation_example_minio-data
+    name: 64aa74b43feb754c344c1b5144d4fbb67ad96dea595beff53c529ff5a5ebab6c_minio-data
   mlflow-prometheus-data:
-    name: surrogate_optimisation_example_mlflow-prometheus-data
+    name: 64aa74b43feb754c344c1b5144d4fbb67ad96dea595beff53c529ff5a5ebab6c_mlflow-prometheus-data
   portainer-data:
-    name: surrogate_optimisation_example_portainer-data
+    name: 64aa74b43feb754c344c1b5144d4fbb67ad96dea595beff53c529ff5a5ebab6c_portainer-data
   postgres-data:
-    name: surrogate_optimisation_example_postgres-data
+    name: 64aa74b43feb754c344c1b5144d4fbb67ad96dea595beff53c529ff5a5ebab6c_postgres-data
   prefect-data:
-    name: surrogate_optimisation_example_prefect-data
+    name: 64aa74b43feb754c344c1b5144d4fbb67ad96dea595beff53c529ff5a5ebab6c_prefect-data
   prefect-postgres-data:
-    name: surrogate_optimisation_example_prefect-postgres-data
+    name: 64aa74b43feb754c344c1b5144d4fbb67ad96dea595beff53c529ff5a5ebab6c_prefect-postgres-data
   prometheus-data:
-    name: surrogate_optimisation_example_prometheus-data
+    name: 64aa74b43feb754c344c1b5144d4fbb67ad96dea595beff53c529ff5a5ebab6c_prometheus-data

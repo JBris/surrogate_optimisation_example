@@ -21,6 +21,7 @@ from prefect.task_runners import SequentialTaskRunner
 from sklearn.preprocessing import MinMaxScaler
 import torch
 import gpytorch
+from ydata_profiling import ProfileReport
 
 # Internal
 from .DataModels import DataModel, GpModel, OptimisationModel, ExperimentModel
@@ -104,7 +105,7 @@ def load_data(
     outputs_file: str,
     inputs: list[str],
     outputs: list[str],
-) -> tuple[pd.DataFrame, pd.DataFrame]:
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """
     Load the parameters and outputs dataframes.
 
@@ -123,7 +124,7 @@ def load_data(
             The list of output columns.
 
     Returns:
-        tuple[pd.DataFrame, pd.DataFrame]:
+        tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
             The parameters and outputs dataframes.
     """
     parameters_file = Path(data_dir, input_dir, parameters_file)
@@ -131,11 +132,13 @@ def load_data(
 
     parameters_df = pd.read_csv(str(parameters_file))
     outputs_df = pd.read_csv(str(outputs_file))
+    df = pd.merge(parameters_df, outputs_df, on = "uuid")
 
     parameters_df = parameters_df[inputs]
     outputs_df = outputs_df[outputs]
+    df = df[inputs + outputs]
 
-    return parameters_df, outputs_df
+    return parameters_df, outputs_df, df
 
 
 @task
@@ -318,7 +321,8 @@ def objective(
             The tensor device.
 
     Returns:
-        tuple[any]: _description_
+        tuple[any]: 
+            The predicted values.
     """
     sample = {}
     for col in parameters_df_bounds.columns:
@@ -352,7 +356,8 @@ def optimise_model(
     data_dir: str,
     output_dir: str,
     experiment_prefix: str,
-    tracking_uri: str
+    tracking_uri: str,
+    df: pd.DataFrame
 ) -> None:
     """
     Optimise the surrogate model.
@@ -384,6 +389,8 @@ def optimise_model(
             The prefix for the experiment name.
         tracking_uri (str):
             The experiment tracking URI.
+        df (pd.DataFrame):
+            The combined dataframe.
     """
     begin_experiment("optimise_model", experiment_prefix, tracking_uri)
 
@@ -440,6 +447,11 @@ def optimise_model(
         )
         __plot_results(optuna.visualization.plot_slice, "slice", i, col)
 
+    profile = ProfileReport(df, title = experiment_prefix)
+    profile_file = str(Path(outdir, f"{experiment_prefix}.html"))
+    profile.to_file(profile_file)
+    mlflow.log_artifact(profile_file)
+
     mlflow.end_run()
 
 @flow(
@@ -464,7 +476,7 @@ def optimise_surrogate_flow(
         experiment_model (OptimisationModel):
             The experiment data model.
     """
-    parameters_df, outputs_df = load_data(
+    parameters_df, outputs_df, df = load_data(
         data_model.data_dir,
         data_model.input_dir,
         data_model.parameters_file,
@@ -494,7 +506,8 @@ def optimise_surrogate_flow(
         data_model.data_dir,
         data_model.output_dir,
         experiment_model.experiment_prefix,
-        experiment_model.tracking_uri
+        experiment_model.tracking_uri,
+        df
     )
 
 
