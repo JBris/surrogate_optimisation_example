@@ -2,6 +2,7 @@
 
 [![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit)](https://github.com/pre-commit/pre-commit)
 [![Validate Pipeline](https://github.com/JBris/surrogate_optimisation_example/actions/workflows/validation.yaml/badge.svg?branch=main)](https://github.com/JBris/surrogate_optimisation_example/actions/workflows/validation.yaml) [![Generate Documentation](https://github.com/JBris/surrogate_optimisation_example/actions/workflows/docs.yaml/badge.svg?branch=main)](https://github.com/JBris/surrogate_optimisation_example/actions/workflows/docs.yaml) [![pages-build-deployment](https://github.com/JBris/surrogate_optimisation_example/actions/workflows/pages/pages-build-deployment/badge.svg?branch=gh-pages)](https://github.com/JBris/surrogate_optimisation_example/actions/workflows/pages/pages-build-deployment)
+[![CodeQL](https://github.com/JBris/surrogate_optimisation_example/actions/workflows/github-code-scanning/codeql/badge.svg?branch=main)](https://github.com/JBris/surrogate_optimisation_example/actions/workflows/github-code-scanning/codeql)
 
 Website: [Surrogate Optimisation Example](https://jbris.github.io/surrogate_optimisation_example/)
 
