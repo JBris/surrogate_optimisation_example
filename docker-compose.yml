@@ -169,6 +169,15 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - portainer-data:/data
 
+  redis:
+    image: redis:${REDIS_TAG}
+    container_name: ${PROJECT_NAME}-redis
+    hostname: redis
+    restart: always
+    stop_grace_period: 10s
+    ports:
+      - ${REDIS_PORT}:6379
+      
   prometheus:
     image: prom/prometheus:${PROMETHEUS_TAG}
     container_name: ${PROJECT_NAME}-prometheus
